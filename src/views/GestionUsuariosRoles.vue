@@ -466,7 +466,7 @@ export default {
     async enviarCredenciales(usuario) {
         try {
           this.loading = true; // 🔹 mostrar animación
-          await axios.post(`${this.BASE_URL}/usuario/${usuario.idUsuario}/enviarCredenciales`);
+          await this.$protectedAxios.post(`${this.BASE_URL}/usuario/${usuario.idUsuario}/enviarCredenciales`);
           Swal.fire('Enviado', 'Se han enviado las credenciales al usuario.', 'success');
         } catch (err) {
           console.error('❌ Error al enviar credenciales:', err);
@@ -488,7 +488,7 @@ export default {
               accesos: accesosString
             };
 
-            await axios.put(`${this.ROLE_MUTATION_BASE}/${payload.idRol}`, rolPayload, {
+            await this.$protectedAxios.put(`${this.ROLE_MUTATION_BASE}/${payload.idRol}`, rolPayload, {
               headers: { 'Content-Type': 'application/json' }
             });
 
@@ -577,7 +577,7 @@ export default {
       ? `${this.BASE_URL}/usuario`
       : this.ROLE_LIST_URL;
 
-    const { data } = await axios.get(url);
+    const { data } = await this.$protectedAxios.get(url);
 
     // 👇 Log aquí dentro del try
     console.log('🔎 Datos recibidos del backend:', data);
@@ -622,7 +622,7 @@ export default {
 
     async fetchAllRoles() {
       try {
-        const { data } = await axios.get(this.ROLE_LIST_URL);
+        const { data } = await this.$protectedAxios.get(this.ROLE_LIST_URL);
         let roles = [];
 
         if (Array.isArray(data)) roles = data;
@@ -670,9 +670,10 @@ export default {
           activo: formValues.activo
         };
 
-        await axios.put(`${this.ROLE_MUTATION_BASE}/${rol.idRol}`, payload, {
+        await this.$protectedAxios.put(`${this.ROLE_MUTATION_BASE}/${rol.idRol}`, payload, {
           headers: { 'Content-Type': 'application/json' }
         });
+
 
         await this.fetchData(); // 🔄 refrescar tabla
 
@@ -703,7 +704,7 @@ export default {
         return;
       }
 
-      await axios.put(`${this.BASE_URL}/usuario/${userId}/rol`, {
+      await this.$protectedAxios.put(`${this.BASE_URL}/usuario/${userId}/rol`, {
         idRol: rolSeleccionado.idRol
       });
 
@@ -726,7 +727,7 @@ export default {
       rol.activo = nuevoEstado;
 
       try {
-        await axios.put(`${this.ROLE_MUTATION_BASE}/${rol.idRol}/estado`, { activo: nuevoEstado });
+        await this.$protectedAxios.put(`${this.ROLE_MUTATION_BASE}/${rol.idRol}/estado`, { activo: nuevoEstado });
         Swal.fire({
           icon: 'success',
           title: `Rol ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
@@ -766,9 +767,10 @@ export default {
             return;
           }
 
-          await axios.post(`${this.BASE_URL}/usuario`, payload, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await this.$protectedAxios.post(`${this.BASE_URL}/usuario`, payload, {
+              headers: { 'Content-Type': 'application/json' }
+            });
+
 
           Swal.fire({
             icon: 'success',
@@ -796,9 +798,10 @@ export default {
             accesos: accesosString
           };
 
-          await axios.post(this.ROLE_MUTATION_BASE, rolPayload, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await this.$protectedAxios.post(this.ROLE_MUTATION_BASE, rolPayload, {
+  headers: { 'Content-Type': 'application/json' }
+});
+
 
           Swal.fire({
             icon: 'success',
@@ -838,7 +841,7 @@ export default {
         const url = this.currentTab === 'usuarios'
           ? `${this.BASE_URL}/usuario/${id}`
           : `${this.ROLE_MUTATION_BASE}/${id}`;
-        await axios.delete(url);
+        await this.$protectedAxios.delete(url);
         await Promise.all([this.fetchData(this.currentPage), this.fetchAllRoles()]);
         Swal.fire('Eliminado', 'Se eliminó correctamente.', 'success');
       } catch (e) {
@@ -917,9 +920,10 @@ export default {
           if (item.carrera) body.carrera = item.carrera;
           if (rolSel) body.idRol = rolSel.idRol;
 
-          await axios.patch(`${this.BASE_URL}/usuario/${item.idUsuario}`, body, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await this.$protectedAxios.patch(`${this.BASE_URL}/usuario/${item.idUsuario}`, body, {
+  headers: { 'Content-Type': 'application/json' }
+});
+
         } else {
           const body = {
             nombreRol: item.nombreRol,
@@ -929,9 +933,10 @@ export default {
               : item.accesos || ''
           };
 
-          await axios.put(`${this.ROLE_MUTATION_BASE}/${item.idRol}`, body, {
-            headers: { 'Content-Type': 'application/json' }
-          });
+          await this.$protectedAxios.put(`${this.ROLE_MUTATION_BASE}/${item.idRol}`, body, {
+  headers: { 'Content-Type': 'application/json' }
+});
+
         }
       }
 
