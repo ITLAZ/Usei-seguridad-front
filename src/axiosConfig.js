@@ -1,15 +1,22 @@
 import axios from 'axios';
 
-// Instancia pública de Axios (sin verificación de token)
-const publicAxios = axios.create();
+// 1. Definir la URL base. 
+// Usamos la variable de entorno de Vite. Si no existe (ej. en local), usa localhost.
+const baseURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
 
-// Instancia protegida de Axios (con verificación de token)
-const protectedAxios = axios.create();
+// 2. Crear las instancias CON la baseURL configurada
+const publicAxios = axios.create({
+  baseURL: baseURL 
+});
 
-// Agrega un interceptor de solicitud a `protectedAxios` para verificar el token
+const protectedAxios = axios.create({
+  baseURL: baseURL
+});
+
+// 3. Interceptor para el token (esto lo tenías bien, lo mantenemos)
 protectedAxios.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken'); // ✅ tu key real
+    const token = localStorage.getItem('authToken');
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
