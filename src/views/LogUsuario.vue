@@ -5,7 +5,29 @@
     </header>
 
     <main class="log-container">
-      <h1 class="log-title">Log de Usuario</h1>
+      <!-- HERO FULL WIDTH (de extremo a extremo) -->
+      <section class="hero-full">
+        <div class="hero-inner">
+          <div class="hero-left">
+            <h1 class="hero-title">
+              Revisión de <span class="hero-accent">Logs</span>
+            </h1>
+            <p class="hero-subtitle">
+              Consulta, filtra y revisa los registros de auditoría y actividad de usuarios.
+            </p>
+          </div>
+
+          <div class="hero-right" aria-hidden="true">
+            <iframe
+              class="hero-lottie"
+              src="https://lottie.host/embed/765a0204-dabb-4f53-9947-f4fd3a57ed25/esYcqJbHi6.lottie"
+              title="Lottie animation"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+      </section>
 
       <!-- TOOLBAR -->
       <div class="toolbar">
@@ -45,12 +67,15 @@
           <option :value="10">10</option>
           <option :value="20">20</option>
           <option :value="50">50</option>
+          <option :value="100">100</option>
         </select>
 
         <button class="sort-button" @click="toggleSortDirection">
-          <i :class="sortDirection === 'asc'
+          <i
+            :class="sortDirection === 'asc'
               ? 'fa-solid fa-chevron-up'
-              : 'fa-solid fa-chevron-down'"></i>
+              : 'fa-solid fa-chevron-down'"
+          ></i>
         </button>
 
         <div class="columns-menu">
@@ -265,7 +290,6 @@ export default {
       }
     },
 
-    // ✅ 1 vez por login (no por refresh / no por volver del menú)
     async registrarAccesoVistaLogsUnaVez() {
       const userId =
         localStorage.getItem('id_usuario') ||
@@ -273,7 +297,6 @@ export default {
         '';
 
       const loginSessionId = localStorage.getItem('loginSessionId') || '';
-
       const key = `USEI_LOGS_VIEW_LOGGED_${userId || 'anon'}_${loginSessionId || 'nosession'}`;
 
       if (sessionStorage.getItem(key) === 'true') return;
@@ -282,7 +305,6 @@ export default {
         await this.$protectedAxios.post(`${BASE_URL}/log-usuario/auditoria/acceso`, {
           detalle: 'El usuario abrió la pantalla de Revisión de Logs'
         });
-
         sessionStorage.setItem(key, 'true');
       } catch (e) {
         console.warn(
@@ -370,6 +392,8 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&display=swap');
+
 .log-container {
   padding-top: 90px;
   min-height: 100vh;
@@ -381,17 +405,87 @@ export default {
   gap: 16px;
 }
 
-.log-title {
-  font-size: 32px;
-  font-weight: 700;
+/* ===== HERO FULL BLEED (extremo a extremo) ===== */
+.hero-full {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  background: #ffffff;
+  border-bottom: 1px solid #e9e9e9;
+  padding: 46px 0;
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.hero-left {
+  flex: 1;
+  min-width: 260px;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: 60px;
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 800;
+  letter-spacing: -0.4px;
   color: #000;
-  margin-bottom: 0.5rem;
+  line-height: 1.1;
+}
+
+.hero-accent {
+  color: #8e6c88;
+}
+
+.hero-subtitle {
+  margin: 10px 0 0 0;
+  color: #263d42;
+  font-size: 17px;
+  line-height: 1.5;
+  max-width: 650px;
+}
+
+.hero-right {
+  width: 460px;
+  height: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: transparent;
+}
+
+.hero-lottie {
+  width: 600%;
+  height: 600%;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .hero-inner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-right {
+    width: 100%;
+    height: 240px;
+  }
+  .hero-title {
+    font-size: 32px;
+  }
 }
 
 /* TOOLBAR */
 .toolbar {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   background: #83cabb;
   border: 1px solid #9fc1c7;
   border-radius: 14px;
@@ -448,7 +542,7 @@ export default {
 /* FILTROS */
 .filters {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   display: flex;
   gap: 12px;
   align-items: center;
@@ -516,27 +610,47 @@ export default {
   background-color: #2c2c30;
 }
 
-/* TABLA */
+/* TABLA (contenedor + tabla más grandes) */
 .log-table-container {
   background-color: #cbdadb;
-  padding: 1.6rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* scrollbar bonito */
+.log-table-container::-webkit-scrollbar {
+  height: 10px;
+}
+.log-table-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+}
+.log-table-container::-webkit-scrollbar-thumb {
+  background: rgba(38, 61, 66, 0.6);
+  border-radius: 999px;
+}
+.log-table-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(38, 61, 66, 0.6) rgba(0, 0, 0, 0.08);
 }
 
 .log-table-container table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  min-width: 1300px;
+  table-layout: auto;
 }
 
+/* filas/celdas más “altas” */
 .log-table-container th,
 .log-table-container td {
   border: 1px solid #263d42;
-  padding: 10px;
+  padding: 14px 12px;
   text-align: left;
   background: #fff;
   vertical-align: top;
@@ -545,16 +659,28 @@ export default {
   overflow: visible;
   text-overflow: clip;
   word-break: break-word;
+  font-size: 15px;
 }
 
+/* ✅ ENCABEZADOS: más grandes, centrados, misma fuente del título */
 .log-table-container th {
   background-color: #263d42;
   color: white;
   cursor: pointer;
+
+  font-family: 'Libre Baskerville', serif; /* ✅ misma fuente que el título */
+  font-size: 18px;                          /* ✅ más grande */
+  font-weight: 700;
+  text-align: center;                       /* ✅ centrado */
+  vertical-align: middle;
+
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .cell-wrap {
-  max-width: 320px;
+  max-width: 420px;
   white-space: normal;
   word-break: break-word;
 }
@@ -563,5 +689,17 @@ export default {
   text-align: center;
   font-style: italic;
   color: #555;
+}
+
+/* en pantallas medianas, que no sea demasiado ancho */
+@media (max-width: 1100px) {
+  .toolbar,
+  .filters,
+  .log-table-container {
+    max-width: 1200px;
+  }
+  .log-table-container table {
+    min-width: 1050px;
+  }
 }
 </style>
