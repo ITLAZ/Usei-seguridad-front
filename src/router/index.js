@@ -223,7 +223,7 @@ const router = createRouter({
       path: '/gestion-usuarios-roles',
       name: 'GestionUsuariosRoles',
       component: GestionUsuariosRoles,
-      meta: { requiresAuth: true, accessKey: 'Gestión de usuarios y roles' }
+      //meta: { requiresAuth: true, accessKey: 'Gestión de usuarios y roles' }
     },
     {
       path: '/log-usuario',

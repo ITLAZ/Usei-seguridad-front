@@ -407,7 +407,7 @@ export default {
       this.ROLE_MUTATION_BASE = `${this.BASE_URL}/rol`;
     } catch (error) {
       console.error('Error discovering backend:', error);
-      this.BASE_URL = 'http://localhost:8080'; // fallback
+      this.BASE_URL = 'https://usei-seguridad-back-production.up.railway.app'; // fallback
       this.ROLE_LIST_URL = `${this.BASE_URL}/rol`;
       this.ROLE_MUTATION_BASE = `${this.BASE_URL}/rol`;
     }
