@@ -163,7 +163,7 @@ export default {
         'Módulo Gestión de Roles',
         'Módulo Gestión de Usuarios',
         'AUTH',
-        'Modulo Noticias'
+        'Modulo Certificados'
       ]
     };
   },
