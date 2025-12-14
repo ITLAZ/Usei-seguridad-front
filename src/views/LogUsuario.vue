@@ -257,7 +257,7 @@ export default {
   methods: {
     async fetchLogs() {
       try {
-        const resp = await this.$publicaxios.get(`${BASE_URL}/log-usuario`);
+        const resp = await this.$protectedAxios.get(`${BASE_URL}/log-usuario`);
         const data = Array.isArray(resp.data) ? resp.data : (resp.data.content || []);
 
         this.logs = data.map(l => ({
