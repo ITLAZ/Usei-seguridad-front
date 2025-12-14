@@ -7,43 +7,8 @@
       </header>
     </section>
 
-    <!-- Cards principales (show when not in password config mode) -->
-    <section v-if="!showPasswordConfig" class="icon-cards">
-      <div class="container-cards">
-        <!-- Card 1: Gestión de Usuarios y Roles -->
-        <div class="card-wrapper">
-          <div class="card">
-            <iframe
-              src="https://lottie.host/embed/6e7d0ef4-c236-40f3-a4a1-f10dec61cb08/2QjivN8N9u.lottie"
-              class="lottie-frame"
-              title="Gestión de Usuarios y Roles"
-            ></iframe>
-          </div>
-          <h3>GESTIÓN DE USUARIOS Y ROLES</h3>
-          <div class="card-button-container">
-            <button class="btn-ingresar" @click="goToUsuariosRoles">Ingresar</button>
-          </div>
-        </div>
-
-        <!-- Card 2: Gestión de Contraseñas -->
-        <div class="card-wrapper">
-          <div class="card">
-            <iframe
-              src="https://lottie.host/embed/c01e5614-08ff-4eeb-ae35-9f306d9c7463/5pJjVm5khK.lottie"
-              class="lottie-frame"
-              title="Gestión de Contraseñas"
-            ></iframe>
-          </div>
-          <h3>GESTIÓN DE CONTRASEÑAS</h3>
-          <div class="card-button-container">
-            <button class="btn-ingresar" @click="goToContrasenas">Ingresar</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Password Configuration Section (show when in config mode) -->
-    <section v-if="showPasswordConfig" class="config-section">
+    <section class="config-section">
       <div class="config-container">
         <div class="config-header">
           <h2>Configuración de Políticas de Seguridad</h2>

@@ -306,7 +306,24 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && requiredAccess) {
     const normalizedAccesses = userAccesses.map(a => normalizeText(a));
     const normalizedRequired = normalizeText(requiredAccess);
-    if (!normalizedAccesses.includes(normalizedRequired)) {
+
+    // Matching más permisivo: igualdad o inclusión (para evitar diferencias leves)
+    function accessMatches(req, acc) {
+      if (!req || !acc) return false;
+      return acc === req || acc.includes(req) || req.includes(acc);
+    }
+
+    const hasAccess = normalizedAccesses.some(a => accessMatches(normalizedRequired, a));
+
+    // Depuración temporal: mostrar datos para entender por qué falla
+    if (!hasAccess) {
+      try {
+        console.debug('[router] requiresAuth:', requiresAuth, 'route:', to.name || to.path);
+        console.debug('[router] token present:', !!token);
+        console.debug('[router] requiredAccess:', requiredAccess, '->', normalizedRequired);
+        console.debug('[router] userAccesses:', userAccesses);
+        console.debug('[router] normalizedAccesses:', normalizedAccesses);
+      } catch (e) {}
       return next({ name: 'AccesoDenegado' });
     }
   }
