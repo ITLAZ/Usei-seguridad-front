@@ -249,34 +249,68 @@ const router = createRouter({
 
 
 // Protección de rutas basada en accesos
+// Protección de rutas basada en accesos (más robusta)
+function normalizeText(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function parseAccesses(raw) {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map(item => {
+        if (item === null || item === undefined) return '';
+        if (typeof item === 'string') return item;
+        if (typeof item === 'object') return item.nombre || item.name || item.access || item.accessKey || item.descripcion || JSON.stringify(item);
+        return String(item);
+      }).filter(Boolean);
+    }
+    if (typeof parsed === 'object') {
+      return Object.values(parsed).map(String).filter(Boolean);
+    }
+    return String(parsed).split(',').map(s => s.trim()).filter(Boolean);
+  } catch (e) {
+    return String(raw).split(',').map(s => s.trim()).filter(Boolean);
+  }
+}
+
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const token = localStorage.getItem('authToken');
-  // Accesos del usuario guardados en localStorage como array de strings
-  let userAccesses = [];
-  try {
-    userAccesses = JSON.parse(localStorage.getItem('accesos') || '[]');
-  } catch (e) {
-    userAccesses = [];
+
+  // Intentamos obtener accesos desde localStorage (fallback principal)
+  let userAccesses = parseAccesses(localStorage.getItem('accesos') || '');
+
+  // Si no hay accesos en localStorage, probar sessionStorage
+  if (userAccesses.length === 0) {
+    userAccesses = parseAccesses(sessionStorage.getItem('accesos') || '');
   }
 
-  // Si la ruta requiere autenticación y no hay token, redirige al inicio
+  // También soportar una variable global que algunos despliegues podrían usar
+  if (userAccesses.length === 0 && typeof window !== 'undefined' && Array.isArray(window.__ACCESOS__)) {
+    userAccesses = window.__ACCESOS__.map(String).filter(Boolean);
+  }
+
   if (requiresAuth && !token) {
     return next({ path: '/' });
   }
 
-  // Si la ruta requiere acceso específico, verifica si el usuario lo tiene
   const requiredAccess = to.meta.accessKey;
   if (requiresAuth && requiredAccess) {
-    // Normaliza espacios y mayúsculas/minúsculas
-    const normalizedAccesses = userAccesses.map(a => a.trim().toLowerCase());
-    const normalizedRequired = requiredAccess.trim().toLowerCase();
+    const normalizedAccesses = userAccesses.map(a => normalizeText(a));
+    const normalizedRequired = normalizeText(requiredAccess);
     if (!normalizedAccesses.includes(normalizedRequired)) {
       return next({ name: 'AccesoDenegado' });
     }
   }
 
-  // Si todo está bien, permitir el acceso a la ruta
   next();
 });
 
