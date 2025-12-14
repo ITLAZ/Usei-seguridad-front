@@ -7,8 +7,7 @@
       </header>
     </section>
 
-    <!-- Password Configuration Section (show when in config mode) -->
-    <section class="config-section">
+    <!-- Main Content -->
       <div class="config-container">
         <div class="config-header">
           <h2>Configuración de Políticas de Seguridad</h2>
@@ -193,7 +192,6 @@
           </div>
         </div>
       </div>
-    </section>
 
     <!-- Footer -->
     <FooterComponent />

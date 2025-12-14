@@ -35,6 +35,8 @@ import LogUsuario from '@/views/LogUsuario.vue'
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { protectedAxios } from '@/axiosConfig';
+import { BASE_URL } from '@/config/globals';
 
 
 // Definir las rutas con accessKey en meta para protección por acceso
@@ -281,7 +283,7 @@ function parseAccesses(raw) {
   }
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const token = localStorage.getItem('authToken');
 
@@ -313,7 +315,50 @@ router.beforeEach((to, from, next) => {
       return acc === req || acc.includes(req) || req.includes(acc);
     }
 
-    const hasAccess = normalizedAccesses.some(a => accessMatches(normalizedRequired, a));
+    let hasAccess = normalizedAccesses.some(a => accessMatches(normalizedRequired, a));
+
+    // Si no tenemos el acceso, intentar refrescar accesos desde backend (por si cambiaron en DB)
+    if (!hasAccess && token) {
+      try {
+        console.debug('[router] intentando refrescar accesos desde backend...');
+        const tryEndpoints = ['/auth/me', '/auth/profile', '/usuario/me', '/usuarios/me', '/auth/user'];
+        let refreshed = [];
+        for (const ep of tryEndpoints) {
+          try {
+            const resp = await protectedAxios.get(ep);
+            const body = resp?.data || {};
+            // revisar varias formas donde el backend puede devolver accesos
+            const candidate = body.accesos || body.data?.accesos || body.accesses || body.data?.accesses || body.accesosUsuario || body.accesos || null;
+            if (candidate) {
+              refreshed = Array.isArray(candidate) ? candidate : (typeof candidate === 'string' ? candidate.split(',') : Object.values(candidate));
+              break;
+            }
+            // some backends might return access inside user object
+            const candidate2 = body.data || body.user || null;
+            if (candidate2) {
+              const c = candidate2.accesos || candidate2.accesses || candidate2.roles || null;
+              if (c) {
+                refreshed = Array.isArray(c) ? c : (typeof c === 'string' ? c.split(',') : Object.values(c));
+                break;
+              }
+            }
+          } catch (e) {
+            // probar siguiente endpoint
+          }
+        }
+        if (refreshed.length > 0) {
+          localStorage.setItem('accesos', JSON.stringify(refreshed));
+          userAccesses = parseAccesses(localStorage.getItem('accesos') || '');
+          const normalizedAfter = userAccesses.map(a => normalizeText(a));
+          hasAccess = normalizedAfter.some(a => accessMatches(normalizedRequired, a));
+          console.debug('[router] accesos refrescados:', refreshed, 'hasAccess:', hasAccess);
+        } else {
+          console.debug('[router] no se obtuvieron accesos al refrescar');
+        }
+      } catch (e) {
+        console.debug('[router] error al refrescar accesos:', e);
+      }
+    }
 
     // Depuración temporal: mostrar datos para entender por qué falla
     if (!hasAccess) {
